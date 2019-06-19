@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -31,12 +32,21 @@ public class GameController : MonoBehaviour
     public int level = 1;//inital level
     public float levelTimer = 0f;//initial level timer
     public TextMeshProUGUI levelText;//displays the current level
+    public TextMeshProUGUI levelTimerText;//displays the level timer
+    public bool timeOut;//used for game ove rmenu to show cause of death
 
-    public TextMeshProUGUI scoreText;//displays the current score
-    public float score;//stores the score
+    public Slider colorGauge;//displays the current color gauge
 
-    public TextMeshProUGUI highScoreText;// displays the current high score
-    public float highScore;//stores the high score
+    public int highLevel;//stores the highest level achieved
+    public TextMeshProUGUI highLevelText;
+
+    public AudioSource levelUpSound;//the level up sound
+
+    //public TextMeshProUGUI scoreText;//displays the current score
+    //public float score;//stores the score
+
+    //public TextMeshProUGUI highScoreText;// displays the current high score
+    //public float highScore;//stores the high score
 
     public GameObject gameOverMenu;
     
@@ -48,12 +58,15 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        score = 0f;//sets the initial score to 0
+        //score = 0f;//sets the initial score to 0
         level = 1;//sets the level back to 1
+        PlayerPrefs.SetInt("level",level);//sets the player pref for level
+        levelTimer = 30f;//initializes the timer to 30 seconds
         Time.timeScale = 1f;//sets time to normal
+        timeOut = false;//used for game over menu
         gameOverMenu.gameObject.SetActive(false);//turns off the game over menu
         player.gameObject.SetActive(true);//makes sure the player game object is set active
-        highScore = PlayerPrefs.GetFloat("highScore", 0f);//initializes the high score
+        highLevel = PlayerPrefs.GetInt("highLevel", 1);//initializes the high level
     }
 
     // Update is called once per frame
@@ -62,7 +75,8 @@ public class GameController : MonoBehaviour
         UpdateSpeed();//updates the speed of the squares
         SpawnSquare();//runs the SpawnSquare function
         UpdateLevel();//runs the UpdateLevel function
-        UpdateScore();//runs the UpdateScore function
+        //UpdateScore();//runs the UpdateScore function
+        UpdateColorGauge();//updates the color gauge slider
         CheckIfDead();//checks if the player is dead
         //squareSpeed = Random.Range(2f, 8f);
         //spawnTimerAmount = Random.Range(0.1f, 0.5f);
@@ -145,7 +159,7 @@ public class GameController : MonoBehaviour
 
     public void UpdateScore()
     {
-        scoreText.text = "Score: " + score;//updates the score text
+        /*scoreText.text = "Score: " + score;//updates the score text
         PlayerPrefs.SetFloat("score", score);//updates the score player pref
 
         if(score > highScore)//only updates the high score if the score if higher
@@ -156,6 +170,14 @@ public class GameController : MonoBehaviour
         }
 
         highScoreText.text = "High Score: " + highScore;//updates the high score text
+        */
+    }
+
+    public void UpdateColorGauge()
+    {
+        colorGauge.value = playerController.color;//updates the color gauge with the current player color value
+
+
     }
 
     public void UpdateSpeed()
@@ -173,7 +195,35 @@ public class GameController : MonoBehaviour
 
     public void UpdateLevel()
     {
-        levelTimer += Time.deltaTime;//starts the level timer
+        if(playerController.isDead == false){
+            levelTimer -= Time.deltaTime;//counts down the timer
+
+            levelTimerText.text = "Time left: " + levelTimer;//displays the remaining time
+            levelText.text = "Level: " + level;//displays the current level
+
+            if(playerController.color >= 100)
+            {
+                levelUp();//runs the levelUp function if the player gets enough color
+            }
+
+            if(level > highLevel)
+            {
+                highLevel = PlayerPrefs.GetInt("highLevel", 1);//gets the current high level level player pref
+            }
+
+            highLevelText.text = "High Level: " + highLevel;//displays the current high level
+
+        }
+
+        if(levelTimer <= 0)
+        {
+            playerController.isDead = true;// if the time runs out, kill the player
+            timeOut = true;//used for game over menu
+        }
+
+
+
+        /*levelTimer += Time.deltaTime;//starts the level timer
 
         levelText.text = "Level: " + level;//updates the level text
 
@@ -204,7 +254,48 @@ public class GameController : MonoBehaviour
                 spawnTimerAmount -= 0.03f;
                 spawnTimerAmount = Mathf.Clamp(spawnTimerAmount, 0.1f, 1f);
             }
+        }*/
+    }
+
+    public void levelUp()
+    {
+        level += 1;//adds one to the level
+        PlayerPrefs.SetInt("level", level);
+        if(level > highLevel)
+        {
+            PlayerPrefs.SetInt("highLevel", level);//updates the high level if the current level surpases it
         }
+
+        playerController.color = 50;//resets the player's color gauge to 50
+
+        levelUpSound.Play();//plays the level up sound
+
+        if (level <= 5)
+        {
+            squareSpeed += 0.4f;
+            spawnTimerAmount -= 0.1f;
+            levelTimer = 25f;//resets the level timer to 30 seconds
+
+        }
+        else if (level >= 6 && level < 20)
+        {
+            squareSpeed += 0.4f;
+            squareSpeed = Mathf.Clamp(squareSpeed, 2f, 8f);
+
+            spawnTimerAmount -= 0.03f;
+            spawnTimerAmount = Mathf.Clamp(spawnTimerAmount, 0.1f, 1f);
+
+            levelTimer = 15f;
+        }
+        else if (level >= 20)
+        {
+            squareSpeed += 0.4f;
+            squareSpeed = Mathf.Clamp(squareSpeed, 2f, 8f);
+            spawnTimerAmount -= 0.03f;
+            spawnTimerAmount = Mathf.Clamp(spawnTimerAmount, 0.1f, 1f);
+            levelTimer = 10f;
+        }
+
     }
 
     public void CheckIfDead()
@@ -228,8 +319,5 @@ public class GameController : MonoBehaviour
 
 //x -7 to 7
 //y 13 to -13
-//player gets longer each good square he eats. Getting hit with bad square shortens. If you get hit when you are one unit size, u lose. Objective is to get to a certain length per wave?
-//
-//Might be more complex to code, but when the bad square could take off a whole chunk of the tail depending where it hits!
-//this game is snakes and squares!
-//the player snake changes color once it is long enough to clear a level
+//player has to race the timer to get enough of the target color
+//if player gets hit by the wrong color too many times, game over!

@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     public float distance = 20f;//distance from camera
     public float dragSpeed = 10f;//how fast the player moves
     public float score;//stores the score
-    public int hp = 3;//the player's hp
+    //public int hp = 3;//the player's hp
 
-    public TextMeshProUGUI hpText;
+    //public TextMeshProUGUI hpText;
+
+    public int color;//tracks the current color guage amount
 
     public bool isDead = false;//checks if player is dead
+    public bool wrongColor;//used for game over menu to show wrong color message
 
     public GameController gameController;//references the GameController script
 
@@ -24,6 +28,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         isDead = false;//initializes this
+        color = 50;//initializes the color to the middle of the gauge
+        wrongColor = false;//
     }
     // Update is called once per frame
     void Update()
@@ -42,15 +48,19 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        hpText.text = "HP: " + hp;//updates the hp text
+        //hpText.text = "HP: " + hp;//updates the hp text
+
+
     }
 
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "GoodSquare")//if this object collides with the Player
         {
-            score = score + 1;
-            gameController.score = score;//adds the score value of this square to the total score
+            //score = score + 1;
+            //gameController.score = score;//adds the score value of this square to the total score
+
+            color = color + 10;//adds to the color gauge
             Destroy(other.gameObject);//destroy the other game object
             goodSound.Play();
 
@@ -58,11 +68,29 @@ public class PlayerController : MonoBehaviour
 
         if (other.gameObject.tag == "BadSquare")
         {
+            color = color - 10;//subtracts from the color gauge
+
+            if(color > 0)
+            {
+                StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
+                Destroy(other.gameObject);
+                badSound.Play();
+            }
+            else
+            {
+                StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
+                Destroy(other.gameObject);
+                badSound.Play();
+                isDead = true;//sets player to be dead
+                wrongColor = true;
+
+            }
+
             //score = score - 1;
             //gameController.score = score;
-            hp -= 1;//subtracts 1 hp
+            //hp -= 1;//subtracts 1 hp
 
-            if (hp > 0)
+            /*if (hp > 0)
             {
                 StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
                 Destroy(other.gameObject);
@@ -76,7 +104,7 @@ public class PlayerController : MonoBehaviour
                 isDead = true;//sets player to be dead
                 //Time.timeScale = 0f;
                 //this.gameObject.SetActive(false);//once hp hits 0, player is set inactive
-            }
+            }*/
         }
     }
 }

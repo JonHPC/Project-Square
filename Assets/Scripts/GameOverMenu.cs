@@ -6,30 +6,45 @@ using TMPro;
 
 public class GameOverMenu : MonoBehaviour
 {
-    private float finalScore;
-    public TextMeshProUGUI finalScoreText;
+    public PlayerController playerController;
+    public GameController gameController;
 
-    private float highScore;
+    private int finalLevel;//tracks the final level reached
 
-    public GameObject newHighScore;
+    public TextMeshProUGUI finalLevelText;//shows the final level reached that game session
+    public TextMeshProUGUI deathText;//shows the reason for losing
+    private int highLevel;//stores the high level
+
+    public GameObject newHighLevel;//the new high level message
+    
 
     void Start()
     {
 
-        finalScore = PlayerPrefs.GetFloat("score", 0f);//stores the score player pref into this variable
-        finalScoreText.text = "Final Score: " + finalScore;//sets the final score text with the final score player pref
+        finalLevel = PlayerPrefs.GetInt("level", 1);//stores the level player pref into this variable
+        finalLevelText.text = "Level Reached: " + finalLevel;//sets the level reached player pref
 
-        highScore = PlayerPrefs.GetFloat("highScore", 0f);//gets and stores the highScore player pref into this variable
+        highLevel = PlayerPrefs.GetInt("highLevel", 1);//gets and stores the highLevel player pref into this variable
 
 
-        if(finalScore >= highScore)
+       if(finalLevel >= highLevel)
         {
-            newHighScore.SetActive(true);//new high score appears when you have a new high score
+            newHighLevel.SetActive(true);//new high level appears when you have a new high level
         }
         else
         {
-            newHighScore.SetActive(false);//this notice is set invisible by default
+            newHighLevel.SetActive(false);//this notice is set invisible by default
         }
+
+        if(playerController.wrongColor == true)
+        {
+            deathText.text = "WRONG COLOR DEATH";//shows this message if you die due to wrong color
+        }
+        else if(gameController.timeOut == true)
+        {
+            deathText.text = "OUT OF TIME";//shows this message if you run out of time
+        }
+
 
     }
 
