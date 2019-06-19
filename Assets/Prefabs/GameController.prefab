@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8322882946873544244
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8322882946873544242}
+  - component: {fileID: 8322882946873544243}
+  m_Layer: 0
+  m_Name: GameController
+  m_TagString: GameController
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8322882946873544242
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322882946873544244}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8322882946873544243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322882946873544244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be6757efb7f0d45bca2d39ff31491ace, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  goodSquare: {fileID: 6785351930511356879, guid: 7f9d918dcc28544438a945385819b7a8,
+    type: 3}
+  goodSquare2: {fileID: 4741327088788862774, guid: 7d3a675ed9b9c4c45bfc218dba3ff9d5,
+    type: 3}
+  goodSquare3: {fileID: 798910731042213364, guid: d2e3287f1be3045cca0de3af456e27c5,
+    type: 3}
+  goodSquare4: {fileID: 8371412945999584321, guid: 4791803e4a4f444bdac11bcf978d12d8,
+    type: 3}
+  badSquare: {fileID: 1491264630667155881, guid: 7220e223ef2794ba694570b7e7bc0863,
+    type: 3}
+  badSquare2: {fileID: 4607372730324720078, guid: c1ebacdce81b445db90b08206e99fee2,
+    type: 3}
+  badSquare3: {fileID: 4434289211207045521, guid: e3c5e914f23e04708964f51b38024f1b,
+    type: 3}
+  badSquare4: {fileID: 6504283181119899424, guid: 42a83f36de40841489e6d016f23c2515,
+    type: 3}
+  xSpawnMin: -6.5
+  xSpawnMax: 6.5
+  ySpawnMin: -13
+  ySpawnMax: 13
+  spawnTimerAmount: 1
+  spawnTimer: 1
+  scoreText: {fileID: 6280699471701011268, guid: f6b2c80c1f40d45db9de6a7e77919f60,
+    type: 3}
+  score: 0
