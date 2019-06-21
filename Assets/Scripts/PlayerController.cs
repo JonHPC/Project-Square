@@ -8,15 +8,14 @@ public class PlayerController : MonoBehaviour
 {
     public float distance = 20f;//distance from camera
     public float dragSpeed = 10f;//how fast the player moves
-    public float score;//stores the score
-    //public int hp = 3;//the player's hp
-
-    //public TextMeshProUGUI hpText;
-
+    public int chain;//stores the chain
     public int color;//tracks the current color guage amount
+    public int colorAdded; //tracks the amount of color added with the chain
 
     public bool isDead = false;//checks if player is dead
     public bool wrongColor;//used for game over menu to show wrong color message
+
+    public GameObject floatingText;//used to show floating text on collectibles
 
     public GameController gameController;//references the GameController script
 
@@ -29,8 +28,9 @@ public class PlayerController : MonoBehaviour
     {
         isDead = false;//initializes this
         color = 50;//initializes the color to the middle of the gauge
-        wrongColor = false;//
+        wrongColor = false;//initialies this reason of death to false
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //hpText.text = "HP: " + hp;//updates the hp text
+
 
 
     }
@@ -57,10 +57,42 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.tag == "GoodSquare")//if this object collides with the Player
         {
-            //score = score + 1;
-            //gameController.score = score;//adds the score value of this square to the total score
+            chain += 1;//adds one to the chain
+            PlayerPrefs.SetInt("chain", chain);//updates the playerpref for the current chain
 
-            color = color + 10;//adds to the color gauge
+
+            if(chain < 3)
+            {
+                colorAdded = 5;
+                color += colorAdded;//adds 5 to color gauge when under a 3 chain combo
+
+            }
+            else if(chain >= 3 && chain < 5)
+            {
+                colorAdded = 10;
+                color += colorAdded;//adds 10 to color gauge for chain 3 and 4 
+                gameController.chainAnimPlaying = true;//triggers the chain animation once
+            }
+            else if(chain >= 5 && chain < 10)
+            {
+                colorAdded = 15;
+                color += colorAdded;//adds 15 to color gauge for chain 5 and up
+                gameController.biggerChainAnimPlaying = true;//triggers the bigger chain animation once
+            }
+            else if(chain >= 10)
+            {
+                colorAdded = 20;
+                color += colorAdded;
+                gameController.biggerChainAnimPlaying = true;
+            }
+
+            if(floatingText)//shows floating text
+            {
+                //GameObject floatingTextSpawn = Instantiate(floatingText, other.transform.position, Quaternion.identity);//spawns the floating text prefab at the location of the player, doesnt follow the player
+                //floatingTextSpawn.GetComponent<TextMeshPro>().text = colorAdded.ToString();//sets the text to show the amount of color added
+                ShowFloatingText();//runs this function if floatingText prefab exists
+            }
+
             Destroy(other.gameObject);//destroy the other game object
             goodSound.Play();
 
@@ -68,12 +100,14 @@ public class PlayerController : MonoBehaviour
 
         if (other.gameObject.tag == "BadSquare")
         {
-            color = color - 10;//subtracts from the color gauge
+            color = color - 20;//subtracts from the color gauge
+            chain = 0;//resets the chain
+            PlayerPrefs.SetInt("chain", chain);//updates the player pref for chain
 
             if(color > 0)
             {
                 StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
-                Destroy(other.gameObject);
+                Destroy(other.gameObject);//destroys the bad square
                 badSound.Play();
             }
             else
@@ -82,29 +116,18 @@ public class PlayerController : MonoBehaviour
                 Destroy(other.gameObject);
                 badSound.Play();
                 isDead = true;//sets player to be dead
-                wrongColor = true;
+                wrongColor = true;//reason of death is wrong color, used for game over menu
 
             }
 
-            //score = score - 1;
-            //gameController.score = score;
-            //hp -= 1;//subtracts 1 hp
 
-            /*if (hp > 0)
-            {
-                StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
-                Destroy(other.gameObject);
-                badSound.Play();
-            }
-            else
-            {
-                StartCoroutine(cameraShake.Shake(0.15f, 0.4f));
-                Destroy(other.gameObject);
-                badSound.Play();
-                isDead = true;//sets player to be dead
-                //Time.timeScale = 0f;
-                //this.gameObject.SetActive(false);//once hp hits 0, player is set inactive
-            }*/
         }
+    }
+
+    void ShowFloatingText()
+    {
+        GameObject floatingTextSpawn = Instantiate(floatingText, transform.position, Quaternion.identity);//spawns the floating text prefab at the location of the player, doesnt follow the player
+        floatingTextSpawn.GetComponent<TextMeshPro>().text = colorAdded.ToString();//sets the text to show the amount of color added
+
     }
 }

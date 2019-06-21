@@ -33,6 +33,8 @@ public class GameController : MonoBehaviour
     public float levelTimer = 0f;//initial level timer
     public TextMeshProUGUI levelText;//displays the current level
     public TextMeshProUGUI levelTimerText;//displays the level timer
+    public Slider levelTimerGauge;//displays the level timer gauge
+    public GameObject timerColor;//changes the timer color gauge
     public bool timeOut;//used for game ove rmenu to show cause of death
 
     public Slider colorGauge;//displays the current color gauge
@@ -41,12 +43,16 @@ public class GameController : MonoBehaviour
     public TextMeshProUGUI highLevelText;
 
     public AudioSource levelUpSound;//the level up sound
+    public GameObject levelUpText;//shows the level up text
 
-    //public TextMeshProUGUI scoreText;//displays the current score
-    //public float score;//stores the score
+    public TextMeshProUGUI chainText;//displays the current chain
+    public int chain = 0;//stores the chain
+    public bool chainAnimPlaying = false;//accessed by playercontroller to trigger chain anim
+    public bool biggerChainAnimPlaying = false;
 
-    //public TextMeshProUGUI highScoreText;// displays the current high score
-    //public float highScore;//stores the high score
+    public TextMeshProUGUI maxChainText;// displays the max chain ever
+    public int maxChain = 0;//stores the max chain
+    public int highestChainEver;//stores the global highest chain for e peen
 
     public GameObject gameOverMenu;
     
@@ -61,12 +67,17 @@ public class GameController : MonoBehaviour
         //score = 0f;//sets the initial score to 0
         level = 1;//sets the level back to 1
         PlayerPrefs.SetInt("level",level);//sets the player pref for level
+        PlayerPrefs.SetInt("chain", chain);//sets the current chain
+        PlayerPrefs.SetInt("maxChain", 0);//resets the max chain for the round
         levelTimer = 30f;//initializes the timer to 30 seconds
         Time.timeScale = 1f;//sets time to normal
         timeOut = false;//used for game over menu
         gameOverMenu.gameObject.SetActive(false);//turns off the game over menu
         player.gameObject.SetActive(true);//makes sure the player game object is set active
-        highLevel = PlayerPrefs.GetInt("highLevel", 1);//initializes the high level
+        highLevel = PlayerPrefs.GetInt("highLevel", 1);//initializes the high level, default is level 1
+        levelUpText.SetActive(false);//initializes this to false
+        maxChain = PlayerPrefs.GetInt("maxChain", 0);//initializes the max chain, default is 0
+        highestChainEver = PlayerPrefs.GetInt("highestChainEver", 0);//initializes the highest chain
     }
 
     // Update is called once per frame
@@ -75,7 +86,7 @@ public class GameController : MonoBehaviour
         UpdateSpeed();//updates the speed of the squares
         SpawnSquare();//runs the SpawnSquare function
         UpdateLevel();//runs the UpdateLevel function
-        //UpdateScore();//runs the UpdateScore function
+        UpdateChain();//runs the UpdateChain function
         UpdateColorGauge();//updates the color gauge slider
         CheckIfDead();//checks if the player is dead
         //squareSpeed = Random.Range(2f, 8f);
@@ -157,20 +168,48 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void UpdateScore()
+    public void UpdateChain()
     {
-        /*scoreText.text = "Score: " + score;//updates the score text
-        PlayerPrefs.SetFloat("score", score);//updates the score player pref
 
-        if(score > highScore)//only updates the high score if the score if higher
+        chain = PlayerPrefs.GetInt("chain", 0);//pulls the current chain amount from player prefs
+        if(chain < 3)
         {
-            highScore = score;
-            PlayerPrefs.SetFloat("highScore", highScore);//updates the PlayerPrefs for highScore
+            chainText.text = "";//disables text before 3 chain
+        }
+        else
+        {
+            chainText.text = "Chain: " + chain;//updates the chain text with the current chain
+
+
+            if(chainAnimPlaying)
+            {
+                chainText.gameObject.GetComponent<Animator>().SetTrigger("chainUp");//plays the chain up animation
+                chainAnimPlaying = false;//prevents this trigger from firing more than once
+            }
+            else if(biggerChainAnimPlaying)
+            {
+                chainText.gameObject.GetComponent<Animator>().SetTrigger("biggerChainUp");//plays the bigger chain up animation
+                biggerChainAnimPlaying = false;//prevents this trigger from firing more than once
+            }
 
         }
 
-        highScoreText.text = "High Score: " + highScore;//updates the high score text
-        */
+
+        if (chain > maxChain)//only updates the max chain if chain is higher
+        {
+            maxChain = chain;
+            PlayerPrefs.SetInt("maxChain", maxChain);//updates the PlayerPrefs for highScore
+
+        }
+
+        if(maxChain> highestChainEver)
+        {
+            highestChainEver = maxChain;//sets the highest chain to the current max
+            PlayerPrefs.SetInt("highestChainEver", highestChainEver);//updates the player pref for this, will be displayed on title page with high level
+        }
+
+        maxChainText.text = "Max Chain: " + maxChain;//updates the maxChain text
+
     }
 
     public void UpdateColorGauge()
@@ -198,7 +237,24 @@ public class GameController : MonoBehaviour
         if(playerController.isDead == false){
             levelTimer -= Time.deltaTime;//counts down the timer
 
-            levelTimerText.text = "Time left: " + levelTimer;//displays the remaining time
+            levelTimerText.text = "" + Mathf.Round(levelTimer);//displays the remaining time rounded down to the nearest second
+            levelTimerGauge.value = levelTimer;//sets the level timer gauge to the level timer amount
+
+            if(levelTimer <= 5)
+            {
+                //levelTimerText.color = new Color32(215, 40, 40, 255);//changes the timer text color to red for the last 5 seconds
+                timerColor.GetComponent<Image>().color = new Color32(215, 40, 40, 255);//turns the color gauge to match above color
+            }
+            else if(levelTimer <= 15 && levelTimer > 5)
+            {
+                timerColor.GetComponent<Image>().color = new Color32(255, 255, 0, 255);//turns the color gauge to match above color
+            }
+            else
+            {
+                levelTimerText.color = new Color32(255, 255, 255, 255);//changes text to white in all other cases
+                timerColor.GetComponent<Image>().color = new Color32(255, 255, 255, 255);//turns the color gauge to match above color
+            }
+
             levelText.text = "Level: " + level;//displays the current level
 
             if(playerController.color >= 100)
@@ -261,6 +317,9 @@ public class GameController : MonoBehaviour
     {
         level += 1;//adds one to the level
         PlayerPrefs.SetInt("level", level);
+
+        StartCoroutine(levelUpTextFn(level));//starts this couroutine with the current level
+
         if(level > highLevel)
         {
             PlayerPrefs.SetInt("highLevel", level);//updates the high level if the current level surpases it
@@ -274,7 +333,9 @@ public class GameController : MonoBehaviour
         {
             squareSpeed += 0.4f;
             spawnTimerAmount -= 0.1f;
-            levelTimer = 25f;//resets the level timer to 30 seconds
+            //levelTimer = 25f;//resets the level timer to 30 seconds
+            levelTimer += 10f;//adds 10 seconds to the timer
+            levelTimer = Mathf.Clamp(levelTimer, 0f, 30f);//clamps the value of the timer to 30 at max
 
         }
         else if (level >= 6 && level < 20)
@@ -285,7 +346,9 @@ public class GameController : MonoBehaviour
             spawnTimerAmount -= 0.03f;
             spawnTimerAmount = Mathf.Clamp(spawnTimerAmount, 0.1f, 1f);
 
-            levelTimer = 15f;
+            //levelTimer = 15f;
+            levelTimer += 10f;//adds 10 seconds to the timer
+            levelTimer = Mathf.Clamp(levelTimer, 0f, 30f);//clamps the value of the timer to 30 at max
         }
         else if (level >= 20)
         {
@@ -293,9 +356,19 @@ public class GameController : MonoBehaviour
             squareSpeed = Mathf.Clamp(squareSpeed, 2f, 8f);
             spawnTimerAmount -= 0.03f;
             spawnTimerAmount = Mathf.Clamp(spawnTimerAmount, 0.1f, 1f);
-            levelTimer = 10f;
+            //levelTimer = 10f;
+            levelTimer += 10f;//adds 10 seconds to the timer
+            levelTimer = Mathf.Clamp(levelTimer, 0f, 30f);//clamps the value of the timer to 30 at max                                                                                  
         }
 
+    }
+
+    IEnumerator levelUpTextFn(int level)
+    {
+        levelUpText.SetActive(true);//sets this text to be active
+        levelUpText.GetComponent<TextMeshProUGUI>().text = "LEVEL " + level;//sets the text of this pop up to match the current level
+        yield return new WaitForSeconds(0.5f);
+        levelUpText.SetActive(false);//disables the text after the wait
     }
 
     public void CheckIfDead()

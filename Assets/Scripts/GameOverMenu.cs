@@ -10,9 +10,11 @@ public class GameOverMenu : MonoBehaviour
     public GameController gameController;
 
     private int finalLevel;//tracks the final level reached
+    private int maxChain;//tracks the max chain reached this round
 
     public TextMeshProUGUI finalLevelText;//shows the final level reached that game session
     public TextMeshProUGUI deathText;//shows the reason for losing
+    public TextMeshProUGUI maxChainText;//shows the max chain achieved this round
     private int highLevel;//stores the high level
 
     public GameObject newHighLevel;//the new high level message
@@ -35,6 +37,9 @@ public class GameOverMenu : MonoBehaviour
         {
             newHighLevel.SetActive(false);//this notice is set invisible by default
         }
+
+        maxChain = PlayerPrefs.GetInt("maxChain", 0);//pulls the player pref for max chain
+        maxChainText.text = "Max Chain: " + maxChain;//displays the max chain reached this round
 
         if(playerController.wrongColor == true)
         {
