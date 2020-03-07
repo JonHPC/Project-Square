@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 16686057365926306}
   - component: {fileID: 333966643286815075}
   - component: {fileID: 6426331776513143381}
-  - component: {fileID: 6121395541695141302}
   - component: {fileID: 8607042355342057532}
+  - component: {fileID: 547684546355278204}
   m_Layer: 0
   m_Name: GoodSquare
   m_TagString: GoodSquare
@@ -93,24 +93,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6121395541695141302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6785351930511356879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 109511a60000149529eb418c69bac5f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 2
-  scoreMultiplier: 1
-  baseScore: 100
-  score: 0
-  gameController: {fileID: 8322882946873544243, guid: 675421d9db7054da6abb41a22a881326,
-    type: 3}
 --- !u!54 &8607042355342057532
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -127,3 +109,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &547684546355278204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6785351930511356879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109511a60000149529eb418c69bac5f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
+  scoreMultiplier: 1
+  baseScore: 100
+  score: 0

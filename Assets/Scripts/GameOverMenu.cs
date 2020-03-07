@@ -43,7 +43,7 @@ public class GameOverMenu : MonoBehaviour
 
         if(playerController.wrongColor == true)
         {
-            deathText.text = "WRONG COLOR DEATH";//shows this message if you die due to wrong color
+            deathText.text = "YOU LOSE";//shows this message if you die due to wrong color
         }
         else if(gameController.timeOut == true)
         {

@@ -20,6 +20,11 @@ public class GameController : MonoBehaviour
     public GameObject badSquare3;//references the upward bad square
     public GameObject badSquare4;//references the rightward bad square
 
+    public GameObject randomSquare;//references the downward falling random square
+
+    public GameObject bomb;//references the bomb prefab
+    public float bombSpawn = 10f; //every 10 seconds
+
     public float xSpawnMin = -6.5f;//the furthest left spawn coordinate
     public float xSpawnMax = 6.5f;//the furthest right spawn coordinate
     public float ySpawnMin = -13f;//the furthest down spawn coordinate
@@ -37,12 +42,13 @@ public class GameController : MonoBehaviour
     public GameObject timerColor;//changes the timer color gauge
     public bool timeOut;//used for game ove rmenu to show cause of death
 
+
     public Slider colorGauge;//displays the current color gauge
 
     public int highLevel;//stores the highest level achieved
     public TextMeshProUGUI highLevelText;
 
-    public AudioSource levelUpSound;//the level up sound
+
     public GameObject levelUpText;//shows the level up text
 
     public TextMeshProUGUI chainText;//displays the current chain
@@ -55,8 +61,9 @@ public class GameController : MonoBehaviour
     public int highestChainEver;//stores the global highest chain for e peen
 
     public GameObject gameOverMenu;
-    
 
+    //cache
+    private AudioManager audioManager;
 
 
 
@@ -78,6 +85,13 @@ public class GameController : MonoBehaviour
         levelUpText.SetActive(false);//initializes this to false
         maxChain = PlayerPrefs.GetInt("maxChain", 0);//initializes the max chain, default is 0
         highestChainEver = PlayerPrefs.GetInt("highestChainEver", 0);//initializes the highest chain
+
+        //caching
+        audioManager = AudioManager.instance;
+        if(audioManager == null)
+        {
+            Debug.LogError("No AudioManager found in the scene.");
+        }
     }
 
     // Update is called once per frame
@@ -85,6 +99,7 @@ public class GameController : MonoBehaviour
     {
         UpdateSpeed();//updates the speed of the squares
         SpawnSquare();//runs the SpawnSquare function
+        //SpawnExtras();//runs the SpawnExtras
         UpdateLevel();//runs the UpdateLevel function
         UpdateChain();//runs the UpdateChain function
         UpdateColorGauge();//updates the color gauge slider
@@ -168,6 +183,23 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /*public void SpawnExtras()
+    {
+
+        bombSpawn -= Time.deltaTime;//while the timer counts down
+
+        if(bombSpawn <= 0f)//when less than 10 seconds
+        {
+            float bombChance = Random.Range(1, 10);//roll the dice
+            if(bombChance < 2)//a 20% to spawn a bomb
+            {
+                float x = Random.Range(xSpawnMin, xSpawnMax);//gets a random coordinate between the min x and max x values
+                Instantiate(bomb, new Vector3(x, ySpawnMax, 0f), Quaternion.identity);//spawns a bomb falling down
+                bombSpawn = 10f;//resets the bomb spawn timer
+            }
+        }
+    }*/
+
     public void UpdateChain()
     {
 
@@ -230,6 +262,8 @@ public class GameController : MonoBehaviour
         badSquare2.GetComponent<BadSquare2>().moveSpeed = squareSpeed;//updates the BadSquare to match the current square speed
         badSquare3.GetComponent<BadSquare3>().moveSpeed = squareSpeed;//updates the BadSquare to match the current square speed
         badSquare4.GetComponent<BadSquare4>().moveSpeed = squareSpeed;//updates the BadSquare to match the current square speed
+
+        randomSquare.GetComponent<RandomSquare>().moveSpeed = squareSpeed;//updates the RandomSquare to match the current square speed
     }
 
     public void UpdateLevel()
@@ -244,15 +278,19 @@ public class GameController : MonoBehaviour
             {
                 //levelTimerText.color = new Color32(215, 40, 40, 255);//changes the timer text color to red for the last 5 seconds
                 timerColor.GetComponent<Image>().color = new Color32(215, 40, 40, 255);//turns the color gauge to match above color
+
             }
+
             else if(levelTimer <= 15 && levelTimer > 5)
             {
                 timerColor.GetComponent<Image>().color = new Color32(255, 255, 0, 255);//turns the color gauge to match above color
+
             }
             else
             {
                 levelTimerText.color = new Color32(255, 255, 255, 255);//changes text to white in all other cases
                 timerColor.GetComponent<Image>().color = new Color32(255, 255, 255, 255);//turns the color gauge to match above color
+
             }
 
             levelText.text = "Level: " + level;//displays the current level
@@ -313,6 +351,10 @@ public class GameController : MonoBehaviour
         }*/
     }
 
+   
+
+
+
     public void levelUp()
     {
         level += 1;//adds one to the level
@@ -325,9 +367,15 @@ public class GameController : MonoBehaviour
             PlayerPrefs.SetInt("highLevel", level);//updates the high level if the current level surpases it
         }
 
+        //DestroyAll();//runs this function to clear the entire screen of squares upon leveling up
+
         playerController.color = 50;//resets the player's color gauge to 50
 
-        levelUpSound.Play();//plays the level up sound
+
+        audioManager.PlaySound("LevelUp");//plays the levelUp sound thru the audio manager
+
+        //float x = Random.Range(xSpawnMin, xSpawnMax);//gets a random coordinate between the min x and max x values
+       //Instantiate(bomb, new Vector3(x, ySpawnMax, 0f), Quaternion.identity);//spawns a bomb falling down as a reward
 
         if (level <= 5)
         {
@@ -394,3 +442,10 @@ public class GameController : MonoBehaviour
 //y 13 to -13
 //player has to race the timer to get enough of the target color
 //if player gets hit by the wrong color too many times, game over!
+
+
+// Add apple game center integration for achievements and leaderboards!! Iphone first, later we do ipad
+//add ability to post score on FB and twitter
+//Achievements can include: Get a Chain, a 5 chain, 10 chain, 20 chain, etc
+//Achievement: Collecting total number of squares over time, hitting x number of bad squares over time, hitting # of bad squares in a row
+// Get to certain level achievements (ex. max level)

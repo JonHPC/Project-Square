@@ -6,6 +6,8 @@ public class BadSquare3 : MonoBehaviour
 {
     public float moveSpeed = 2f;//initial move speed
 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,7 +18,11 @@ public class BadSquare3 : MonoBehaviour
     void Update()
     {
         transform.position = new Vector3(transform.position.x, transform.position.y + 1 * Time.deltaTime * moveSpeed, 0);
+
+
     }
+
+
 
     /*void OnTriggerEnter(Collider other)
     {
